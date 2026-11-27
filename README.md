@@ -9,9 +9,9 @@ Its `tftpsrv` command then lets a PC upload an OpenWrt initramfs image.
 
 | Item | Value |
 |---|---|
-| OpenOCD | xPack OpenOCD 0.12.0+dev-02228-ge5888bda3-dirty (2025-10-04) |
-| Adapter | SEGGER J-Link (`jlink.cfg`, JTAG transport) |
-| Target | Qualcomm IPQ4029, 4x Cortex-A7, Actually I'm not sure whether `IPQ4029.cfg` or `IPQ4029_old.cfg` was used in the end |
+| OpenOCD | latest from GitHub |
+| Adapter | SEGGER J-Link |
+| Target | Qualcomm IPQ4029, 4x Cortex-A7, `IPQ4029.cfg` |
 | JTAG chain | dummy0 (0x6e8011dc, IR5), dummy1 (0xb74008ee, IR5), **cpu DAP (0x5ba00477, IR4)**, auto0 (0x000016dd, IR5), auto1 (0x0003d0e1, IR11) |
 | Debug bases | cpu0..3 at 0x80040000 / 42000 / 44000 / 46000; CTIs 0x80010000.. |
 | RAM payload | `uboot/u-boot_2012.07-ga8496ca-dirty.bin`, loaded to `0x86000000` (SHA256 `91E190D5D62A7F289C1F123FE87D002A06943B1CA5C01EDBA65A49F238F20085`) |
@@ -89,13 +89,10 @@ everything.
 
 1. Wire J-Link to MR33 JTAG header, power the board (leave UART
    disconnected).
-2. Start OpenOCD from the folder with `u-boot_2012.07-ga8496ca-dirty.bin` (copy
-   `uboot/u-boot_2012.07-ga8496ca-dirty.bin` and `openocd/*.cfg` next to it, or adjust
-   paths):
+2. Start OpenOCD from the root of this project:
    ```
-   openocd.exe -f jlink.cfg -f IPQ4029.cfg
+   openocd -f interface/jlink.cfg -f IPQ4029.cfg
    ```
-   (or run `openocd\run_openocd.cmd`)
 3. In another terminal: `telnet localhost 4444`, then paste the
    contents of `openocd/hijack-uboot.tcl`. It resets the chip and
    drops our custom U-Boot into RAM instead of the stock one (see

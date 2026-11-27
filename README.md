@@ -38,19 +38,8 @@ Its `tftpsrv` command then lets a PC upload an OpenWrt initramfs image.
 > fully automatic (TFTP server + boot), so leave the UART disconnected
 > or strictly read-only (RX only, never transmit).
 
-> **Disclaimer / volunteers required:**
-> this process was tested with a *non-booby-trapped* U-Boot build. It
-> should work the same with the booby-trapped one, but that has not
-> been verified. Volunteers willing to test it (on a device they can
-> afford to brick) are needed. Use at your own risk.
->
-> As the MR33 is nearing its end of support life, this is worth
-> confirming: with the MR33 (and similar IPQ40xx Merakis) reaching
-> end-of-life, if this JTAG approach also works on the 2017
-> bootloader, it may end up being an easier recovery/unlock path than
-> desoldering the NAND and reflashing it externally - though it does
-> require a JTAG tool rather than just a NAND programmer (see
-> Requirements above).
+> **Disclaimer**
+> This process has been tested with both the 2012 and 2017 U-Boot versions. Use at your own risk!
 
 > **Reliability:**
 > hijacking the bootloader before it loads Linux (and replacing it) is
@@ -83,15 +72,16 @@ everything.
 
 ## Procedure
 
-1. Wire J-Link to MR33 JTAG header, power the board.
+1. Wire J-Link to [MR33 JTAG header](https://openwrt.org/toh/meraki/mr33#jtag), power the board.
 2. Start OpenOCD from the root of this project:
    ```
    openocd -f interface/jlink.cfg -f IPQ4029.cfg
    ```
-3. In another terminal: `telnet localhost 4444`, then paste the
-   contents of `openocd/hijack-uboot.tcl`. It resets the chip and
+3. In another terminal: `telnet localhost 4444`, then run
+   `source hijack-uboot.tcl`. It resets the chip and
    drops our custom U-Boot into RAM instead of the stock one (see
    "What the hijack script actually does" above for the details).
+   **NOTE**: This may take a few tries!
 4. The RAM-loaded U-Boot starts its TFTP server automatically (no
    serial console or typing needed - and typing is dangerous).
 5. On the PC (192.168.1.10):

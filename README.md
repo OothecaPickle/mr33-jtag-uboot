@@ -17,7 +17,7 @@ Its `tftpsrv` command then lets a PC upload an OpenWrt initramfs image.
 | OpenWrt image | [download](https://downloads.openwrt.org/releases/25.12.6/targets/ipq40xx/generic/openwrt-25.12.6-ipq40xx-generic-meraki_mr33-initramfs-uImage.itb) |
 | Flashing PC | static IP `192.168.1.10`, wired to MR33 LAN; tftp client |
 | MR33 U-Boot IP | `192.168.1.1` |
-| Serial | Not needed. 115200 8N1; **never send any input** (keypress blows an efuse, see warning) |
+| Serial | optional, 115200 8N1; **never send any input** (keypress blows an efuse, see warning) |
 
 ## Requirements
 

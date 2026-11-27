@@ -1,7 +1,6 @@
 # Meraki MR33 (IPQ4029): JTAG-loaded U-Boot -> TFTP flash of OpenWrt
 
-Boots a modified ("jailbroken") U-Boot 2012.07-ga8496ca-dirty into RAM over JTAG on a
-Meraki MR33.
+Boots a modified U-Boot into RAM over JTAG on a Meraki MR33.
 
 Its `tftpsrv` command then lets a PC upload an OpenWrt initramfs image.
 
@@ -9,13 +8,13 @@ Its `tftpsrv` command then lets a PC upload an OpenWrt initramfs image.
 
 | Item | Value |
 |---|---|
-| OpenOCD | latest from GitHub |
+| OpenOCD | latest from [GitHub master](https://github.com/openocd-org/openocd) |
 | Adapter | SEGGER J-Link |
 | Target | Qualcomm IPQ4029, 4x Cortex-A7, `IPQ4029.cfg` |
 | JTAG chain | dummy0 (0x6e8011dc, IR5), dummy1 (0xb74008ee, IR5), **cpu DAP (0x5ba00477, IR4)**, auto0 (0x000016dd, IR5), auto1 (0x0003d0e1, IR11) |
-| Debug bases | cpu0..3 at 0x80040000 / 42000 / 44000 / 46000; CTIs 0x80010000.. |
-| RAM payload | `uboot/u-boot_2012.07-ga8496ca-dirty.bin`, loaded to `0x86000000` (SHA256 `91E190D5D62A7F289C1F123FE87D002A06943B1CA5C01EDBA65A49F238F20085`) |
-| OpenWrt image | `openwrt-25.12.5-ipq40xx-generic-meraki_mr33-initramfs-uImage.itb` (download from OpenWrt, not stored here) |
+| Debug bases | cpu0..3 at 0x80040000 / 42000 / 44000 / 46000; CTIs 0x80010000... |
+| RAM payload | `u-boot.bin`, loaded to `0x86000000` (SHA256 `91E190D5D62A7F289C1F123FE87D002A06943B1CA5C01EDBA65A49F238F20085`) |
+| OpenWrt image | [download](https://downloads.openwrt.org/releases/25.12.6/targets/ipq40xx/generic/openwrt-25.12.6-ipq40xx-generic-meraki_mr33-initramfs-uImage.itb) |
 | Flashing PC | static IP `192.168.1.10`, wired to MR33 LAN; tftp client |
 | MR33 U-Boot IP | `192.168.1.1` |
 | Serial | Not needed. 115200 8N1; **never send any input** (keypress blows an efuse, see warning) |
@@ -32,9 +31,6 @@ Its `tftpsrv` command then lets a PC upload an OpenWrt initramfs image.
   https://www.tag-connect.com/wp-content/uploads/bsk-pdf-manager/2021/02/TC2050-ARM2010-2021.pdf)
   for a solderless connection. The adapter itself can be swapped for
   plain Dupont jumper wires if you don't have one.
-- `libusb-1.0.dll`/`libftdi1.dll` next to `openocd.exe` (the xPack
-  bundle already includes them) and the probe on a libusb/WinUSB
-  driver (Zadig) if OpenOCD cannot open it.
 
 > **WARNING - do not type on the serial console.**
 > The RAM-loaded U-Boot is booby-trapped: any keypress on the UART
@@ -76,7 +72,7 @@ and probe once more.
 
 At this point cpu0 is running the factory U-Boot but hasn't booted
 Linux yet, so we halt it right there, shove our own
-`u-boot_2012.07-ga8496ca-dirty.bin` straight into RAM at `0x86000000`,
+`u-boot.bin` straight into RAM at `0x86000000`,
 point the CPU's program counter at the start of that image, and let 
 it run - hijacking the boot before the factory U-Boot gets to Linux.
 
@@ -87,8 +83,7 @@ everything.
 
 ## Procedure
 
-1. Wire J-Link to MR33 JTAG header, power the board (leave UART
-   disconnected).
+1. Wire J-Link to MR33 JTAG header, power the board.
 2. Start OpenOCD from the root of this project:
    ```
    openocd -f interface/jlink.cfg -f IPQ4029.cfg
@@ -101,7 +96,7 @@ everything.
    serial console or typing needed - and typing is dangerous).
 5. On the PC (192.168.1.10):
    ```
-   echo -e "binary\nput openwrt-25.12.5-ipq40xx-generic-meraki_mr33-initramfs-uImage.itb" | tftp 192.168.1.1
+   echo -e "binary\nput openwrt-25.12.6-ipq40xx-generic-meraki_mr33-initramfs-uImage.itb" | tftp 192.168.1.1
    ```
    (Windows: use `tftp -i 192.168.1.1 PUT <file>` or the Linux/WSL
    command above.)
@@ -194,17 +189,12 @@ Recommended (safer) sequence, from a shell on the running OpenWrt:
 
 ## Files
 
-- `openocd/IPQ4029.cfg` - current target config (all 4 cores, SMP
+- `IPQ4029.cfg` - current target config (all 4 cores, SMP
   line commented out).
-- `openocd/IPQ4029_old.cfg` - older config used with
-  `legacy-notes.txt`.
-- `openocd/jlink.cfg`, `scan.cfg` - adapter config / chain scan.
-- `openocd/hijack-uboot.tcl` - the working command sequence (SRST +
+- `hijack-uboot.tcl` - the working command sequence (SRST +
   DAP power-up + load + run).
-- `openocd/legacy-notes.txt` - earlier manual approach (arm mcr cache
-  tweak, per-core halt) and bootm notes.
-- `openocd/run_openocd.cmd` - OpenOCD launch line.
-- `uboot/u-boot_2012.bin` - the RAM-loaded U-Boot.
+- `u-boot.bin` - the RAM-loaded U-Boot
+- `scan.cfg` - chain scan
 
 ## Notes
 
@@ -220,6 +210,6 @@ Recommended (safer) sequence, from a shell on the running OpenWrt:
   `mtd-rw i_want_a_brick=1` step:
   [halmartin/meraki-openwrt-docs](https://github.com/halmartin/meraki-openwrt-docs)
   (`mr33/README.md`)
-- `uboot/u-boot_2012.bin` originates from the Google Drive share
+- `u-boot.bin` originates from the Google Drive share
   [1jJa8LzYnY830v3nBZdOgAk0YQK6OdbSS](https://drive.google.com/drive/folders/1jJa8LzYnY830v3nBZdOgAk0YQK6OdbSS)
-  and can be extracted from `mr33-uboot.bin` with `7zip`.
+  and can be extracted from `mr33-uboot.bin` with `7zip`, or via `tail -c+65 < mr33-uboot.bin | gunzip > u-boot.bin`

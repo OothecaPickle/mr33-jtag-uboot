@@ -1,6 +1,4 @@
 # Load a custom U-Boot into RAM over JTAG on the Meraki MR33 (IPQ4029).
-# Paste this into the OpenOCD telnet console (telnet localhost 4444) once
-# `openocd.exe -f jlink.cfg -f IPQ4029.cfg` is running and has attached to the target.
 
 # Stop OpenOCD's background polling so we can drive reset/DAP state by hand
 # without it fighting us mid-sequence.
@@ -37,7 +35,7 @@ sleep 1000
 # point the program counter at its entry address, and let the core run from
 # there instead - replacing the factory U-Boot before it gets to Linux.
 halt
-load_image u-boot_2017.bin 0x86000000 bin
+load_image u-boot.bin 0x86000000 bin
 reg pc 0x86000000
 resume
 

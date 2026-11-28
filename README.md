@@ -78,7 +78,7 @@ everything.
    openocd -f interface/jlink.cfg -f IPQ4029.cfg
    ```
 3. In another terminal: `telnet localhost 4444`, then run
-   `source hijack-uboot.tcl`. It resets the chip and
+   `script hijack-uboot.tcl`. It resets the chip and
    drops our custom U-Boot into RAM instead of the stock one (see
    "What the hijack script actually does" above for the details).
    **NOTE**: This may take a few tries!

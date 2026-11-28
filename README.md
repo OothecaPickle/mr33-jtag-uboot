@@ -157,6 +157,11 @@ Recommended (safer) sequence, from a shell on the running OpenWrt:
    ```
    insmod mtd-rw i_want_a_brick=1
    ```
+   **Note:**
+   You'll need to install `kmod-mtd-rw` and `nand-utils`
+   ```
+   apk add nand-utils kmod-mtd-rw
+   ```
 3. Copy the ELF build of U-Boot (not `.bin`/`.itb`) to the router and
    verify its checksum on-device:
    ```
